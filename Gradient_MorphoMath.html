@@ -1,0 +1,164 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Gradient_MorphoMath</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-02-25"><meta name="DC.source" content="Gradient_MorphoMath.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">clear <span class="string">all</span>;
+close <span class="string">all</span>;
+
+<span class="comment">%Affichage de l'image de base en niveaux de gris</span>
+I=imread(<span class="string">'Ampoule.gif'</span>);
+colormap(<span class="string">'gray'</span>);
+figure(1);
+imagesc(I);
+title(<span class="string">'Image de base'</span>);
+
+disk=strel(<span class="string">'disk'</span>,3);   <span class="comment">%Marqueur en forme de disque de taille 3</span>
+V4=[0,1,0;1,1,1;0,1,0]; <span class="comment">%Marqueur en forme de croix</span>
+
+Ero=imerode(I,V4);      <span class="comment">%Erosion de l'image par le marqueur V4</span>
+Dil=imdilate(I,V4);     <span class="comment">%Dilatation de l'image par le marqueur V4</span>
+
+Sym=Dil-Ero;            <span class="comment">%Gradient sym&eacute;tris&eacute;</span>
+Int=I-Ero;              <span class="comment">%Gradient int&eacute;rieur</span>
+Ext=Dil-I;              <span class="comment">%Gradient ext&eacute;rieur</span>
+
+<span class="comment">%Affichage du gradient sym&eacute;tris&eacute;</span>
+figure(2);
+colormap(<span class="string">'gray'</span>);
+imagesc(Sym);
+title(<span class="string">'Gradient Sym&eacute;trique'</span>);
+
+<span class="comment">%Affichage du gradient int&eacute;rieur</span>
+figure(3);
+colormap(<span class="string">'gray'</span>);
+imagesc(Int);
+title(<span class="string">'Gradient Int&eacute;rieur'</span>);
+
+<span class="comment">%Affichage du gradient ext&eacute;rieur</span>
+figure(4);
+colormap(<span class="string">'gray'</span>);
+imagesc(Ext);
+title(<span class="string">'Gradient Ext&eacute;rieur'</span>);
+
+B=strel(<span class="string">'disk'</span>,8);      <span class="comment">%Marqueur en forme de disque de taille 8</span>
+I2=imopen(I,B);         <span class="comment">%Ouverture de l'image de base par le marqueur pr&eacute;c&eacute;dent</span>
+I2=I-(I-I2);            <span class="comment">%Application de l'ouverture sur l'image de base (image auquelle on enl&egrave;ve l'ouverture de l'image)</span>
+<span class="comment">%Affichage de l'image corrig&eacute;e</span>
+figure(5);
+imshow(I2);
+title(<span class="string">'White top hat'</span>);
+</pre><img vspace="5" hspace="5" src="Gradient_MorphoMath_01.png" alt=""> <img vspace="5" hspace="5" src="Gradient_MorphoMath_02.png" alt=""> <img vspace="5" hspace="5" src="Gradient_MorphoMath_03.png" alt=""> <img vspace="5" hspace="5" src="Gradient_MorphoMath_04.png" alt=""> <img vspace="5" hspace="5" src="Gradient_MorphoMath_05.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear all;
+close all;
+
+%Affichage de l'image de base en niveaux de gris
+I=imread('Ampoule.gif');
+colormap('gray');
+figure(1);
+imagesc(I);
+title('Image de base');
+
+disk=strel('disk',3);   %Marqueur en forme de disque de taille 3
+V4=[0,1,0;1,1,1;0,1,0]; %Marqueur en forme de croix
+
+Ero=imerode(I,V4);      %Erosion de l'image par le marqueur V4
+Dil=imdilate(I,V4);     %Dilatation de l'image par le marqueur V4
+
+Sym=Dil-Ero;            %Gradient symétrisé
+Int=I-Ero;              %Gradient intérieur
+Ext=Dil-I;              %Gradient extérieur
+
+%Affichage du gradient symétrisé
+figure(2);
+colormap('gray');
+imagesc(Sym);
+title('Gradient Symétrique');
+
+%Affichage du gradient intérieur
+figure(3);
+colormap('gray');
+imagesc(Int);
+title('Gradient Intérieur');
+
+%Affichage du gradient extérieur
+figure(4);
+colormap('gray');
+imagesc(Ext);
+title('Gradient Extérieur');
+
+B=strel('disk',8);      %Marqueur en forme de disque de taille 8
+I2=imopen(I,B);         %Ouverture de l'image de base par le marqueur précédent
+I2=I-(I-I2);            %Application de l'ouverture sur l'image de base (image auquelle on enlève l'ouverture de l'image)
+%Affichage de l'image corrigée
+figure(5);
+imshow(I2);
+title('White top hat');
+
+
+##### SOURCE END #####
+--></body></html>
